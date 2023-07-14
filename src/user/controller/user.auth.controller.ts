@@ -1,14 +1,17 @@
 import {
   Body,
   Controller,
+  HttpCode,
   Post,
   Res,
   UploadedFiles,
   UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { FileUploadInterceptor } from 'src/utils/upload/fileUploadInterceptor';
-import { createUserDto } from '../dto';
+import { LoginDto, createUserDto } from '../dto';
 import { UserAuthService } from '../service/user.auth.service';
 
 @Controller('auth')
@@ -29,5 +32,13 @@ export class UserAuthController {
     );
     data.success ? res.status(201) : res.status(409);
     return data;
+  }
+
+  // login
+  @Post('login')
+  @HttpCode(200)
+  @UsePipes(ValidationPipe)
+  async loginMember(@Body() LoginDto: LoginDto) {
+    return await this.UserAuthService.loginMember(LoginDto);
   }
 }
