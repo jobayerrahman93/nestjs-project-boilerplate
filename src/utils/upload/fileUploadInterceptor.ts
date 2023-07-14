@@ -1,14 +1,13 @@
+import { HttpException } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
 import { allowed_file_types } from '../miscellaneous/constants';
-import { HttpException } from '@nestjs/common';
-import { error } from 'console';
 
 export const FileUploadInterceptor = (subFolder: string) => {
   return AnyFilesInterceptor({
     storage: diskStorage({
-      destination: `./uploads/${subFolder}`,
+      destination: `./upload_files/${subFolder}`,
       filename: (req, file, cb) => {
         console.log({ file });
         const uniqueName =
