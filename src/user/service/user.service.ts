@@ -27,4 +27,33 @@ export class UserService {
       data,
     };
   }
+
+  // update profile
+  public async updateProfile(req: Request, files: Array<Express.Multer.File>) {
+    const { id } = req.params;
+    return await this.prisma.$transaction(async (tx) => {
+      if (files?.length) {
+        req.body[files[0].fieldname] = files[0].filename;
+      }
+
+      const updateUserRes = await tx.user.update({
+        where: {
+          id: parseInt(id),
+        },
+        data: req.body,
+      });
+
+      if (updateUserRes.id) {
+        return {
+          success: true,
+          message: 'Successfully profile updated',
+        };
+      } else {
+        return {
+          success: false,
+          message: 'Cannot profile update at this moment',
+        };
+      }
+    });
+  }
 }
