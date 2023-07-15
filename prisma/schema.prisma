@@ -21,3 +21,14 @@ model User {
   status    Boolean  @default(true)
   createdAt DateTime @default(now())
 }
+
+model email_otp {
+  otp_id          Int      @id @default(autoincrement())
+  otp_hashed      String
+  otp_email       String
+  otp_tried       Int?     @default(0)
+  otp_matched     Int?     @default(0)
+  otp_type        String
+  otp_create_time DateTime @default(now())
+}
+

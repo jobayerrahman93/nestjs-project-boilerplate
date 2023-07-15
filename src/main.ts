@@ -8,9 +8,9 @@ async function bootstrap() {
     origin: origin,
     credentials: true,
   });
-  await app.listen(3000);
 
-  // const prismaService = app.get(PrismaService);
-  // await prismaService.enableShutdownHooks(app);
+  console.log(process.env.APPSETTING_EMAIL_SEND_EMAIL_ID, 'email fm main');
+
+  await app.listen(3000);
 }
 bootstrap();

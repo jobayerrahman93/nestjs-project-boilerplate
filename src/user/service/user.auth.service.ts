@@ -1,13 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import config from 'src/utils/config/config';
+
+import { AppConfigService } from 'src/config/app.config.service';
 import Lib from 'src/utils/lib/lib';
-import { IloginBody } from 'src/utils/types/bind.type';
+import { IForgetPassBody, IloginBody } from 'src/utils/types/bind.type';
 import { createUserDto } from '../dto';
 
 @Injectable()
 export class UserAuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly appConfigService: AppConfigService,
+  ) {}
 
   // register member
   public async registerMember(
@@ -46,7 +50,7 @@ export class UserAuthService {
 
     const token = Lib.createToken(
       { id, name, email, photo },
-      config.JWT_SECRET_USER,
+      this.appConfigService.secretUser,
       '24h',
     );
 
@@ -66,6 +70,7 @@ export class UserAuthService {
   // login member
   public async loginMember(body: IloginBody) {
     const { email: userEmail, password } = body;
+
     const checkUser = await this.prisma.user.findFirst({
       where: {
         email: userEmail,
@@ -86,7 +91,7 @@ export class UserAuthService {
 
     const token = Lib.createToken(
       { id, name, email, photo },
-      config.JWT_SECRET_USER,
+      this.appConfigService.secretUser,
       '24h',
     );
 
@@ -101,5 +106,35 @@ export class UserAuthService {
       },
       token,
     };
+  }
+
+  // forget password change service
+  public async forgetPassword({
+    table,
+    passField,
+    password,
+    userEmailField,
+    userEmail,
+  }: IForgetPassBody) {
+    const hashedPass = await Lib.hashPass(password);
+
+    const updatePass = await this.prisma[table].update({
+      data: { [passField]: hashedPass },
+      where: {
+        [userEmailField]: userEmail,
+      },
+    });
+
+    if (updatePass) {
+      return {
+        success: true,
+        message: 'Password changed successfully!',
+      };
+    } else {
+      return {
+        success: true,
+        message: 'Cannot change password now!',
+      };
+    }
   }
 }

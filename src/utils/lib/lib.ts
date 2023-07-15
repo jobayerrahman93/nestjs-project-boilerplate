@@ -1,12 +1,11 @@
-import { allStrings } from '../miscellaneous/constants';
-import jwt from 'jsonwebtoken';
-import { sign, verify } from 'jsonwebtoken';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
-import config from '../config/config';
+import { sign, verify } from 'jsonwebtoken';
 import { createTransport } from 'nodemailer';
+import { allStrings } from '../miscellaneous/constants';
 
 class Lib {
-  // make hashed password
+  private static configService = new ConfigService();
 
   public static async hashPass(password: string) {
     const salt = await bcrypt.genSalt(10);
@@ -78,13 +77,13 @@ class Lib {
       const transporter = createTransport({
         service: 'gmail',
         auth: {
-          user: config.EMAIL_SEND_EMAIL_ID,
-          pass: config.EMAIL_SEND_PASSWORD,
+          user: Lib.configService.get('APPSETTING_EMAIL_SEND_EMAIL_ID'),
+          pass: Lib.configService.get('APPSETTING_EMAIL_SEND_PASSWORD'),
         },
       });
 
       const info = await transporter.sendMail({
-        from: config.EMAIL_SEND_EMAIL_ID,
+        from: Lib.configService.get('APPSETTING_EMAIL_SEND_EMAIL_ID'),
         to: email,
         subject: emailSub,
         html: emailBody,
